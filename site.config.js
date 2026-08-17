@@ -29,7 +29,7 @@ export default {
   //
   // TIP: for local rankings a local area code beats a toll-free number.
   // Google treats a local number as a local relevance signal.
-  phone: '+1(820)-837-6461',
+  phone: '+18208376461',
 
   // Business email on your own domain.
   email: 'support@cleanfeatures.com',
