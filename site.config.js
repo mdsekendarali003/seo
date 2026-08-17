@@ -112,7 +112,7 @@ export default {
   // Google Ads conversion ID (the "AW-XXXXXXXXX" from your gtag snippet).
   // Leave empty and NOTHING is added to the site — no script, no external
   // request. Only fill this in once you actually have an active campaign.
-  googleAdsId: '',
+  googleAdsId: 'AW-18394901639',
 
 
   /* ─── 6. Images ────────────────────────────────────────────────── */
