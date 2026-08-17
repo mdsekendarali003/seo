@@ -1,0 +1,92 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import CallCta from '../../components/CallCta.astro';
+import VendorDisclosure from '../../components/VendorDisclosure.astro';
+import { SERVICES } from '../../data/services.js';
+import { CITIES } from '../../data/cities.js';
+import { BUSINESS } from '../../data/business.js';
+import * as S from '../../lib/schema.js';
+
+export function getStaticPaths() {
+  return SERVICES.map((svc) => ({ params: { slug: svc.slug }, props: { svc } }));
+}
+const { svc } = Astro.props;
+const path = `/services/${svc.slug}`;
+const trail = [{ name: 'Home', path: '/' }, { name: 'Services', path: '/services' }, { name: svc.name, path }];
+
+// Top metros get an inline link here — spreads authority from the service page
+// into the city pages rather than leaving them orphaned in the sitemap.
+const topCities = CITIES.slice(0, 12);
+
+const schema = S.graph(
+  S.organization(), S.website(), S.localBusiness(),
+  S.webPage({ path, title: svc.name, description: svc.blurb, primaryEntityId: S.ID.service(svc.slug) }),
+  S.breadcrumbs(trail, path),
+  S.service(svc),
+  S.faqPage(svc.faqs, path),
+  S.howTo({
+    name: `How we handle ${svc.name.toLowerCase()}`,
+    description: svc.blurb,
+    totalTime: svc.duration,
+    pagePath: path,
+    steps: svc.process.map(([name, text]) => ({ name, text })),
+  }),
+  (svc.vendorContext || []).map((v) => S.vendorMention(v)),
+);
+---
+<Base title={svc.name} description={svc.blurb} path={path} schema={schema}>
+  <div class="wrap">
+    <Breadcrumbs trail={trail} />
+    <h1>{svc.name}</h1>
+    <p class="lead muted" data-speakable>{svc.blurb}</p>
+
+    <div class="answer-box" data-speakable>
+      <p><strong>{svc.name} — the short version.</strong> {svc.faqs[0].a}</p>
+      <p style="margin-top:.8em">
+        Starting at <strong>${svc.priceFrom}</strong> · Free diagnosis ·
+        <a href={`tel:${BUSINESS.phone}`}>Call {BUSINESS.phoneDisplay}</a>
+      </p>
+    </div>
+
+    {svc.vendorContext && <VendorDisclosure vendors={svc.vendorContext} />}
+
+    <section>
+      <h2>Signs you need this</h2>
+      <ul class="checklist">{svc.symptoms.map((s) => <li>{s}</li>)}</ul>
+    </section>
+
+    <section>
+      <h2>How we fix it</h2>
+      <ol class="steps">
+        {svc.process.map(([name, text]) => (
+          <li><strong>{name}</strong><span>{text}</span></li>
+        ))}
+      </ol>
+    </section>
+
+    <Faq faqs={svc.faqs} heading={`${svc.name} — questions we get asked`} />
+
+    <CallCta heading={`Need ${svc.short.toLowerCase()}?`} sub={`From $${svc.priceFrom}. Free diagnosis, fixed price before we start.`} />
+
+    <section>
+      <h2>{svc.name} by location</h2>
+      <ul class="linklist">
+        {topCities.map((c) => (
+          <li><a href={`/computer-repair/${c.slug}`}>{svc.short} in {c.name}, {c.state}</a></li>
+        ))}
+        <li><a href="/locations"><strong>All {CITIES.length} locations →</strong></a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Related services</h2>
+      <ul class="linklist">
+        {SERVICES.filter((s) => s.slug !== svc.slug).map((s) => (
+          <li><a href={`/services/${s.slug}`}>{s.name}</a></li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</Base>

@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { BUSINESS } from '../data/business.js';
+import * as S from '../lib/schema.js';
+const path = '/privacy';
+const trail = [{ name: 'Home', path: '/' }, { name: 'Privacy', path }];
+const schema = S.graph(S.organization(), S.website(),
+  S.webPage({ path, title: 'Privacy Policy', description: 'How we handle your data.' }),
+  S.breadcrumbs(trail, path));
+---
+<Base title="Privacy Policy" description={`How ${BUSINESS.name} collects, uses and protects your information.`} path={path} schema={schema}>
+  <div class="wrap">
+    <Breadcrumbs trail={trail} />
+    <h1>Privacy policy</h1>
+    <p class="muted">Last updated: {new Date().toISOString().slice(0, 10)}</p>
+    <p><strong>Template — have this reviewed for your jurisdiction before launch.</strong>
+       If you serve California or EU residents, CCPA/GDPR obligations apply and this
+       needs expanding accordingly.</p>
+    <h2>What we collect</h2>
+    <p>Contact details you provide (name, phone, email) and details of the technical problem you describe. Basic anonymised analytics about site usage.</p>
+    <h2>Remote support sessions</h2>
+    <p>Remote sessions are initiated by you with a one-time code. We do not install persistent remote-access software, and access ends when the session closes. We access only what is needed to resolve the reported problem, and your screen remains visible to you throughout.</p>
+    <h2>What we never ask for</h2>
+    <p>We do not ask for banking passwords, and we will never ask you to log into your bank during a support session or to pay by gift card or cryptocurrency. Anyone doing so is not us — see <a href="/guides/how-to-spot-a-tech-support-scam">our scam guide</a>.</p>
+    <h2>Retention and sharing</h2>
+    <p>Service records are kept as required for warranty and accounting. We do not sell personal information.</p>
+    <h2>Contact</h2>
+    <p><a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> · <a href={`tel:${BUSINESS.phone}`}>{BUSINESS.phoneDisplay}</a></p>
+  </div>
+</Base>

@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import { CITIES } from '../data/cities.js';
+import { SERVICES } from '../data/services.js';
+---
+<Base title="Page not found" description="That page does not exist." path="/404" noindex={true}>
+  <div class="wrap">
+    <h1>Page not found</h1>
+    <p class="lead muted">That page does not exist. Here is where most people are headed:</p>
+    <ul class="linklist">
+      <li><a href="/">Home</a></li>
+      <li><a href="/services">All services</a></li>
+      <li><a href="/locations">Service areas</a></li>
+      <li><a href="/guides">Help guides</a></li>
+      {SERVICES.slice(0, 5).map((s) => <li><a href={`/services/${s.slug}`}>{s.name}</a></li>)}
+      {CITIES.slice(0, 6).map((c) => <li><a href={`/computer-repair/${c.slug}`}>Computer repair {c.name}</a></li>)}
+    </ul>
+  </div>
+</Base>

@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import CallCta from '../components/CallCta.astro';
+import { BUSINESS } from '../data/business.js';
+import { CITIES } from '../data/cities.js';
+import * as S from '../lib/schema.js';
+const path = '/about';
+const trail = [{ name: 'Home', path: '/' }, { name: 'About', path }];
+const schema = S.graph(
+  S.organization(), S.website(), S.localBusiness(),
+  S.webPage({ path, title: 'About Us', description: 'Who we are and how we work.' }),
+  S.breadcrumbs(trail, path),
+);
+---
+<Base title="About Us" description={`About ${BUSINESS.name} — an independent computer repair provider. How we work, what we charge, and why we are not affiliated with any software vendor.`} path={path} schema={schema}>
+  <div class="wrap">
+    <Breadcrumbs trail={trail} />
+    <h1>About {BUSINESS.name}</h1>
+    <div class="answer-box" data-speakable>
+      <p>{BUSINESS.name} is an independent computer repair provider serving home and
+      small business customers. We fix Windows and Mac problems, remove malware, set
+      up printers and email, recover data and repair hardware. We operate remotely
+      nationwide and on site across {CITIES.length} US metro areas.</p>
+    </div>
+
+    <section>
+      <h2>How we work</h2>
+      <ul class="checklist">
+        <li><strong>Free diagnosis.</strong> We find the actual cause before quoting anything.</li>
+        <li><strong>Fixed price up front.</strong> You approve the price before billable work starts.</li>
+        <li><strong>No fix, no fee.</strong> If we cannot solve it, you do not pay for the attempt.</li>
+        <li><strong>No commissions.</strong> We do not resell software or hardware, so our advice is not a sales pitch.</li>
+        <li><strong>Plain explanations.</strong> You get a written summary of what was wrong and what we did.</li>
+        <li><strong>Honest replace advice.</strong> When a machine is not worth repairing, we say so.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>We are independent — and that matters</h2>
+      <p>
+        We are not affiliated with, endorsed by, or authorized by Microsoft, Norton,
+        Gen Digital, Apple, HP, Dell or any other manufacturer. We are a separate
+        repair business, in the same way an independent car mechanic is separate from
+        the manufacturer.
+      </p>
+      <p>What that means in practice:</p>
+      <ul class="checklist">
+        <li>We <strong>can</strong> install, configure, repair and remove software on your machine</li>
+        <li>We <strong>can</strong> diagnose and fix hardware and operating system faults</li>
+        <li>We <strong>cannot</strong> access your vendor accounts, process vendor refunds, or issue licence keys</li>
+        <li>For billing, subscriptions, refunds and account recovery we will point you to the vendor directly</li>
+      </ul>
+      <p>
+        If a company claiming to be a manufacturer's support line calls you first,
+        or a pop-up shows a phone number, that is a scam — we wrote
+        {' '}<a href="/guides/how-to-spot-a-tech-support-scam">a guide on how to tell the difference</a>.
+      </p>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>
+        Phone: <a href={`tel:${BUSINESS.phone}`}>{BUSINESS.phoneDisplay}</a><br />
+        Email: <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a><br />
+        Hours: {BUSINESS.hoursDisplay}
+      </p>
+    </section>
+    <CallCta />
+  </div>
+</Base>

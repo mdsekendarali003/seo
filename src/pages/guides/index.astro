@@ -1,0 +1,48 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import CallCta from '../../components/CallCta.astro';
+import { GUIDES } from '../../data/guides.js';
+import * as S from '../../lib/schema.js';
+
+const path = '/guides';
+const trail = [{ name: 'Home', path: '/' }, { name: 'Help Guides', path }];
+const sorted = [...GUIDES].sort((a, b) => b.updated.localeCompare(a.updated));
+const schema = S.graph(
+  S.organization(), S.website(),
+  S.webPage({ path, title: 'Computer Help Guides', description: 'Free troubleshooting guides.' }),
+  S.breadcrumbs(trail, path),
+  {
+    '@type': 'Blog', '@id': `${path}#blog`,
+    name: 'Computer Help Guides', publisher: { '@id': S.ID.org },
+    blogPost: GUIDES.map((g) => ({
+      '@type': 'BlogPosting', headline: g.title, description: g.description,
+      datePublished: g.published, dateModified: g.updated, url: `/guides/${g.slug}`,
+    })),
+  },
+);
+---
+<Base
+  title="Computer Help &amp; Troubleshooting Guides"
+  description="Step-by-step fixes for slow computers, antivirus problems, printer errors, Outlook password prompts and how to spot tech support scams. Free, no signup."
+  path={path} schema={schema}
+>
+  <div class="wrap">
+    <Breadcrumbs trail={trail} />
+    <h1>Computer help guides</h1>
+    <p class="lead muted" data-speakable>
+      Real fixes, written so you can follow them yourself. No signup, no upsell.
+      If a guide does not resolve it, we are happy to take a look.
+    </p>
+    <div class="grid">
+      {sorted.map((g) => (
+        <article class="card">
+          <h3><a href={`/guides/${g.slug}`}>{g.title}</a></h3>
+          <p>{g.description}</p>
+          <p class="muted" style="font-size:.84rem">Updated {g.updated}</p>
+        </article>
+      ))}
+    </div>
+    <CallCta heading="Guide did not fix it?" sub="Free diagnosis and a fixed price before any work." />
+  </div>
+</Base>

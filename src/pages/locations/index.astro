@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import CallCta from '../../components/CallCta.astro';
+import { CITIES } from '../../data/cities.js';
+import * as S from '../../lib/schema.js';
+
+const path = '/locations';
+const trail = [{ name: 'Home', path: '/' }, { name: 'Locations', path }];
+const byState = CITIES.reduce((acc, c) => {
+  (acc[c.stateName] ||= []).push(c);
+  return acc;
+}, {});
+const states = Object.keys(byState).sort();
+
+const schema = S.graph(
+  S.organization(), S.website(),
+  S.webPage({ path, title: 'Service Areas', description: `Computer repair across ${CITIES.length} US metros.` }),
+  S.breadcrumbs(trail, path),
+  {
+    '@type': 'ItemList',
+    '@id': `${path}#list`,
+    numberOfItems: CITIES.length,
+    itemListElement: CITIES.map((c, i) => ({
+      '@type': 'ListItem', position: i + 1,
+      name: `Computer repair ${c.name}, ${c.state}`,
+      url: `/computer-repair/${c.slug}`,
+    })),
+  },
+);
+---
+<Base
+  title={`Service Areas — Computer Repair in ${CITIES.length} US Cities`}
+  description={`On-site computer and PC repair across ${CITIES.length} US metro areas, plus same-day remote support nationwide. Find your city.`}
+  path={path} schema={schema}
+>
+  <div class="wrap">
+    <Breadcrumbs trail={trail} />
+    <h1>Service areas</h1>
+    <p class="lead muted" data-speakable>
+      On-site computer repair in {CITIES.length} US metro areas across {states.length}
+      {' '}states, plus same-day remote support available anywhere in the United States.
+    </p>
+    {states.map((st) => (
+      <section>
+        <h2>{st}</h2>
+        <ul class="linklist">
+          {byState[st].map((c) => (
+            <li><a href={`/computer-repair/${c.slug}`}>Computer &amp; PC repair {c.name}</a></li>
+          ))}
+        </ul>
+      </section>
+    ))}
+    <CallCta heading="Not in one of these cities?" sub="Remote support covers the whole United States — most problems never need a visit." />
+  </div>
+</Base>

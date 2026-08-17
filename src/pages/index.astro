@@ -1,0 +1,180 @@
+---
+import Base from '../layouts/Base.astro';
+import ServiceGrid from '../components/ServiceGrid.astro';
+import Faq from '../components/Faq.astro';
+import CallCta from '../components/CallCta.astro';
+import Icon from '../components/Icon.astro';
+import ServiceMap from '../components/ServiceMap.astro';
+import { BUSINESS, SITE } from '../data/business.js';
+import { CITIES } from '../data/cities.js';
+import { SERVICES } from '../data/services.js';
+import * as S from '../lib/schema.js';
+
+const path = '/';
+// Pull the single best FAQ from each service to build a broad homepage FAQ block.
+const homeFaqs = [
+  { q: 'How much does computer repair cost?',
+    a: 'Most computer repairs run $79 to $149. Virus and malware removal is typically $89-$149, Windows troubleshooting $79-$129, and printer or email setup $69-$99. Data recovery starts at $149 and is quoted after diagnosis. Diagnosis is free and you get a fixed price before any work begins.' },
+  { q: 'How fast can you fix my computer?',
+    a: `Remote software problems are usually resolved the same day, often within two hours of your call to ${BUSINESS.phoneDisplay}. On-site visits are typically available next business day. Hardware repairs that require parts depend on availability, and we tell you the expected timeline before starting.` },
+  { q: 'How do I book a repair?',
+    a: `Call ${BUSINESS.phoneDisplay} and describe what the machine is doing. Diagnosis is free, you get a fixed price before any billable work, and most software problems are fixed remotely the same day without a visit. ${BUSINESS.hoursDisplay}.` },
+  { q: 'Do you offer remote support or do I need to bring my computer in?',
+    a: 'Most software problems — viruses, Windows errors, email setup, printer drivers, slow performance — are fixed remotely with no visit needed. Only hardware faults require physical access. Remote sessions start from $59 and you watch every action on your screen.' },
+  { q: 'Do you charge if you cannot fix it?',
+    a: 'No. Diagnosis is free and if we cannot resolve the problem you do not pay for the attempt. You only pay for work that actually fixes the issue.' },
+  { q: 'Are you affiliated with Microsoft, Norton or other software companies?',
+    a: 'No. We are a fully independent repair provider with no affiliation to, endorsement from, or authorization by any software or hardware manufacturer. We can help with installing, configuring and troubleshooting third-party software on your computer, but billing, licensing and account matters must go through the vendor directly.' },
+  { q: 'What areas do you cover?',
+    a: `We provide remote support nationwide across the United States and on-site service in ${CITIES.length} metro areas including Dallas, Houston, Los Angeles, New York, Chicago and Phoenix. Check the locations page for the full list.` },
+];
+
+const schema = S.graph(
+  S.organization(),
+  S.website(),
+  S.localBusiness(),
+  S.webPage({ path, title: `${BUSINESS.name} — ${BUSINESS.tagline}`, description: BUSINESS.description }),
+  S.faqPage(homeFaqs, path),
+  SERVICES.map((s) => S.service(s)),
+);
+---
+<Base
+  title="Computer Repair & PC Support"
+  description="Independent computer and PC repair. Virus removal, Windows troubleshooting, printer setup and remote support. Free diagnosis, fixed pricing, same-day remote help nationwide."
+  path={path}
+  schema={schema}
+>
+  {/* Hero. The photo is a CSS background layered over a navy fallback, so the
+      section still looks deliberate before you add your own image. Drop a file at
+      public/images/hero.jpg and it appears automatically — no code change. */}
+  <section class="hero" style={`--hero-fallback:url('${SITE.images.hero}.jpg');--hero-img:image-set(url('${SITE.images.hero}.webp') type('image/webp'), url('${SITE.images.hero}.jpg') type('image/jpeg'))`}>
+    <div class="wrap hero-inner">
+      <p class="eyebrow hero-anim hero-anim-1">Computer &amp; Laptop Specialists</p>
+      <h1>Computer Repair Service</h1>
+      <p class="lead hero-anim hero-anim-2" data-speakable>
+        Independent repair for home and small business. Virus removal, Windows
+        errors, printer setup and slow machines — fixed remotely the same day, or
+        on site across {CITIES.length} metro areas.
+      </p>
+      <div class="hero-actions hero-anim hero-anim-3">
+        <a class="btn btn-primary" href={`tel:${BUSINESS.phone}`}>Call {BUSINESS.phoneDisplay}</a>
+        <a class="btn btn-outline" href="/services">Get a Quote</a>
+      </div>
+    </div>
+  </section>
+
+  {/* Trust strip, overlapping the hero */}
+  <div class="wrap featstrip">
+    <div class="featstrip-grid reveal-group">
+      <div class="featstrip-card">
+        <span class="ico"><Icon name="tag" /></span>
+        <div><h3>Fixed Price Up Front</h3><p>Free diagnosis, then you approve the price before we start.</p></div>
+      </div>
+      <div class="featstrip-card">
+        <span class="ico"><Icon name="shield" /></span>
+        <div><h3>No Fix, No Fee</h3><p>If we cannot solve it, you do not pay for the attempt.</p></div>
+      </div>
+      <div class="featstrip-card">
+        <span class="ico"><Icon name="clock" /></span>
+        <div><h3>Same-Day Remote Help</h3><p>Most software problems are resolved within hours of your call.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap section-tight">
+    {/* Answer-first block: a complete, standalone answer placed high. This is the
+        passage most likely to be lifted into an AI Overview, so it stays near the top
+        regardless of how the visual design changes. */}
+    <div class="answer-box reveal" data-speakable>
+      <p><strong>What we do:</strong> {BUSINESS.name} is an independent computer
+      repair service. We remove viruses and malware, fix Windows startup and update
+      failures, set up printers and email, recover lost data, and speed up slow PCs.
+      Typical repairs cost $79-$149 with free diagnosis. Remote support is available
+      nationwide the same day; on-site service covers {CITIES.length} US metro areas.
+      Call <a href={`tel:${BUSINESS.phone}`}>{BUSINESS.phoneDisplay}</a>.</p>
+    </div>
+  </div>
+
+  {/* About */}
+  <section class="wrap section-tight" style="padding-top:0">
+    <div class="about-grid">
+      <div class="about-media reveal-left">
+        <span class="dots"></span>
+<picture>
+          <source srcset={`${SITE.images.about1}.webp`} type="image/webp" />
+          <img class="a1" src={`${SITE.images.about1}.jpg`}
+               alt="Technician working on two laptops at a repair bench"
+               width="900" height="600" loading="lazy" decoding="async" />
+        </picture>
+        <picture>
+          <source srcset={`${SITE.images.about2}.webp`} type="image/webp" />
+          <img class="a2" src={`${SITE.images.about2}.jpg`}
+               alt="Interior of an opened hard drive during data recovery"
+               width="800" height="533" loading="lazy" decoding="async" />
+        </picture>
+      </div>
+      <div class="about-copy reveal-right">
+        <span class="eyebrow-c">About Us</span>
+        <h2>Straight answers and honest repair pricing</h2>
+        <p>
+          We are an independent repair shop, not a franchise and not a call centre.
+          You get a named technician who explains what went wrong in plain language,
+          and a written summary of what was done.
+        </p>
+        <p>
+          We do not resell software licences and take no vendor commissions, so when
+          we recommend something it is because it fixes your problem. If a machine is
+          not worth repairing, we tell you that instead of selling you the work.
+        </p>
+        <ul class="checklist" style="margin-bottom:1.8em">
+          <li>Free diagnosis with no obligation</li>
+          <li>Fixed price agreed before work starts</li>
+          <li>No permanent remote access left behind</li>
+          <li>Honest replace-vs-repair advice</li>
+        </ul>
+        <a class="btn btn-primary" href="/about">Learn More</a>
+      </div>
+    </div>
+  </section>
+
+  {/* Services */}
+  <section class="section section-alt">
+    <div class="wrap">
+      <ServiceGrid
+        heading="Here's How We Can Help You"
+        sub="Ten services covering everything that goes wrong with a computer, with honest starting prices."
+        feature={1}
+      />
+    </div>
+  </section>
+
+  <div class="wrap section">
+    <section>
+      <h2 class="reveal">How it works</h2>
+      <ol class="steps reveal-group">
+        <li><strong>Tell us what is wrong</strong><span>Call or email. We ask what the machine is doing and what changed recently — that usually narrows it immediately.</span></li>
+        <li><strong>Free diagnosis</strong><span>We identify the actual cause rather than guessing, and tell you what it will take to fix.</span></li>
+        <li><strong>Fixed price, then we start</strong><span>You approve a set price before any billable work. No surprises on the invoice.</span></li>
+        <li><strong>Fixed and explained</strong><span>We resolve it and explain what caused it in plain language, so you know how to avoid a repeat.</span></li>
+      </ol>
+    </section>
+
+    <div class="reveal"><Faq faqs={homeFaqs} heading="Common questions" /></div>
+
+    <section>
+      <h2 class="reveal">Service areas</h2>
+      <p class="muted">On-site computer repair across {CITIES.length} US metros, plus remote support nationwide.</p>
+      <ServiceMap />
+      <ul class="linklist reveal">
+        {CITIES.map((c) => (
+          <li><a href={`/computer-repair/${c.slug}`}>Computer repair {c.name}, {c.state}</a></li>
+        ))}
+      </ul>
+    </section>
+
+    <div class="reveal"><CallCta
+      heading="Get it fixed today"
+      sub="Free diagnosis. Fixed price before we start. Most software problems solved remotely the same day."
+    /></div>
+  </div>
+</Base>

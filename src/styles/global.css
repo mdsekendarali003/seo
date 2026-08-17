@@ -1,0 +1,417 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Design tokens.
+   Navy + amber service-trade palette. Change --amber and --navy and the
+   whole site follows — nothing hardcodes a colour below this block.
+
+   System fonts only: no webfont request means no render-blocking and no
+   layout shift. Core Web Vitals are a ranking factor, and webfonts are the
+   most common cause of a failing LCP on small business sites.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  --navy:#1b2a54; --navy-dark:#132043; --navy-soft:#26386b;
+  --amber:#f0a028; --amber-dark:#d4870f; --amber-soft:#fdf3e3;
+
+  --bg:#ffffff; --fg:#1d2333; --muted:#6b7385; --line:#e5e8ee;
+  --surface:#f4f6f9; --card:#ffffff;
+  --warn-bg:#fff8e6; --warn-line:#e8c96a; --warn-fg:#5c4708;
+
+  --radius:4px; --wrap:1180px;
+  --shadow:0 2px 14px rgba(27,42,84,.07);
+  --shadow-lg:0 8px 30px rgba(27,42,84,.12);
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+/* Dark palette, defined once and applied in two places.
+   Three states are possible and all three must work:
+     1. data-theme="dark"  → user explicitly chose dark
+     2. data-theme="light" → user explicitly chose light (must beat the OS)
+     3. no attribute       → follow the OS via prefers-color-scheme
+   The media query is guarded with :not([data-theme="light"]) so an explicit
+   light choice still wins on a machine set to dark. */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10141f; --fg:#e9ecf3; --muted:#98a1b5; --line:#232a3a;
+    --surface:#161c2a; --card:#182031; --navy:#182031; --navy-dark:#0c1017;
+    --navy-soft:#222c40;
+    --warn-bg:#2a2313; --warn-line:#6b5a20; --warn-fg:#f0d68a;
+    --shadow:0 2px 14px rgba(0,0,0,.3); --shadow-lg:0 8px 30px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10141f; --fg:#e9ecf3; --muted:#98a1b5; --line:#232a3a;
+  --surface:#161c2a; --card:#182031; --navy:#182031; --navy-dark:#0c1017;
+  --navy-soft:#222c40;
+  --warn-bg:#2a2313; --warn-line:#6b5a20; --warn-fg:#f0d68a;
+  --shadow:0 2px 14px rgba(0,0,0,.3); --shadow-lg:0 8px 30px rgba(0,0,0,.45);
+}
+
+/* ── Theme toggle ────────────────────────────────────────────────── */
+.theme-toggle{background:none;border:1px solid var(--line);cursor:pointer;
+              width:34px;height:34px;display:grid;place-items:center;padding:0;
+              color:var(--fg);flex:none}
+.theme-toggle:hover{border-color:var(--amber);color:var(--amber-dark)}
+.theme-toggle svg{width:16px;height:16px;fill:currentColor}
+/* Show the icon for the theme you would switch TO, not the current one. */
+.theme-toggle .i-sun{display:none}
+.theme-toggle .i-moon{display:block}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .theme-toggle .i-sun{display:block}
+  :root:not([data-theme="light"]) .theme-toggle .i-moon{display:none}
+}
+:root[data-theme="dark"] .theme-toggle .i-sun{display:block}
+:root[data-theme="dark"] .theme-toggle .i-moon{display:none}
+:root[data-theme="light"] .theme-toggle .i-sun{display:none}
+:root[data-theme="light"] .theme-toggle .i-moon{display:block}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);
+     font-size:16px;line-height:1.7;-webkit-text-size-adjust:100%}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--amber-dark)}
+h1,h2,h3,h4{line-height:1.25;margin:0 0 .5em;font-weight:700;color:var(--fg)}
+h1{font-size:clamp(2.1rem,5vw,3.4rem);letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3.2vw,2.1rem);margin-top:0}
+h3{font-size:1.05rem}
+p{margin:0 0 1em}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:22px}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:8px;top:8px;z-index:99;background:var(--amber);color:var(--navy);padding:10px 16px}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+/* ── Top utility bar ─────────────────────────────────────────────── */
+.topbar{background:var(--navy);color:#c8d0e4;font-size:.79rem}
+.topbar-inner{display:flex;align-items:center;gap:26px;flex-wrap:wrap;
+              min-height:38px;padding-block:6px}
+.topbar a{color:#c8d0e4;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+.topbar a:hover{color:#fff}
+.topbar svg{width:13px;height:13px;flex:none;fill:var(--amber)}
+.topbar-social{margin-left:auto;display:flex;gap:16px;align-items:center}
+.topbar-social a{padding:2px}
+.topbar-social svg{width:13px;height:13px;fill:#c8d0e4}
+.topbar-social a:hover svg{fill:var(--amber)}
+
+/* ── Header ──────────────────────────────────────────────────────── */
+.site-header{background:var(--bg);border-bottom:1px solid var(--line);
+             position:sticky;top:0;z-index:40}
+.header-inner{display:flex;align-items:center;gap:30px;min-height:74px;flex-wrap:wrap}
+.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;
+       font-weight:800;font-size:1.22rem;letter-spacing:.01em;color:var(--fg);
+       text-transform:uppercase}
+.brand svg{width:30px;height:30px;flex:none}
+.site-header nav{display:flex;gap:26px;margin-left:auto;flex-wrap:wrap}
+.site-header nav a{color:var(--fg);text-decoration:none;font-size:.83rem;
+                   font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+                   padding-block:6px;border-bottom:2px solid transparent}
+.site-header nav a:hover,.site-header nav a[aria-current="page"]{
+  color:var(--amber-dark);border-bottom-color:var(--amber)}
+.header-tools{display:flex;align-items:center;gap:14px;padding-left:22px;
+              border-left:1px solid var(--line)}
+.header-tools svg{width:15px;height:15px;fill:var(--fg);opacity:.7}
+.header-tools a:hover svg{opacity:1;fill:var(--amber-dark)}
+.header-phone{display:inline-flex;align-items:center;gap:9px;background:var(--amber);
+              color:var(--navy);font-weight:800;text-decoration:none;
+              padding:11px 20px;font-size:.9rem;white-space:nowrap}
+.header-phone:hover{background:var(--amber-dark);color:#fff}
+.header-phone svg{width:14px;height:14px;fill:currentColor}
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.btn{display:inline-block;padding:14px 30px;text-decoration:none;font-weight:800;
+     font-size:.83rem;text-transform:uppercase;letter-spacing:.06em;
+     border:2px solid transparent;transition:background .15s,color .15s}
+.btn-primary{background:var(--amber);color:var(--navy);border-color:var(--amber)}
+.btn-primary:hover{background:var(--amber-dark);border-color:var(--amber-dark);color:#fff}
+.btn-outline{background:#fff;color:var(--navy);border-color:#fff}
+.btn-outline:hover{background:transparent;color:#fff}
+.btn-ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--amber);color:var(--amber-dark)}
+
+/* ── Hero ────────────────────────────────────────────────────────── */
+/* Layered: gradient scrim over photo over navy fallback. If the photo is
+   missing the section still looks deliberate rather than broken. */
+.hero{position:relative;background-color:var(--navy);
+      background-image:linear-gradient(90deg,rgba(19,32,67,.94) 0%,rgba(19,32,67,.72) 45%,rgba(19,32,67,.42) 100%),
+                       var(--hero-fallback,linear-gradient(120deg,#26386b,#132043));
+      background-image:linear-gradient(90deg,rgba(19,32,67,.94) 0%,rgba(19,32,67,.72) 45%,rgba(19,32,67,.42) 100%),
+                       var(--hero-img,linear-gradient(120deg,#26386b,#132043));
+      background-size:cover;background-position:center;
+      color:#fff;padding-block:clamp(70px,11vw,140px)}
+.hero-inner{max-width:610px;padding-bottom:60px}
+.hero .eyebrow{font-size:1.02rem;font-weight:600;color:#e8ecf5;margin-bottom:6px}
+.hero h1{color:#fff;margin-bottom:.35em}
+.hero p.lead{font-size:1.03rem;color:#d6dcea;max-width:46ch;margin-bottom:1.9em}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+
+/* ── Feature strip (overlaps the hero) ───────────────────────────── */
+.featstrip{position:relative;margin-top:-58px;z-index:5}
+.featstrip-grid{display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(255px,1fr))}
+.featstrip-card{background:var(--card);box-shadow:var(--shadow-lg);padding:24px 26px;
+                display:flex;align-items:flex-start;gap:16px}
+.featstrip-card h3{margin:0 0 2px;font-size:.98rem}
+.featstrip-card p{margin:0;color:var(--muted);font-size:.87rem}
+.ico{width:44px;height:44px;flex:none;background:var(--amber);display:grid;place-items:center}
+.ico svg{width:20px;height:20px;fill:var(--navy)}
+
+/* ── Sections ────────────────────────────────────────────────────── */
+.section{padding-block:clamp(52px,7vw,86px)}
+.section-tight{padding-block:clamp(30px,4vw,46px)}
+.featstrip + .section-tight{padding-top:clamp(34px,4.5vw,52px)}
+.section-alt{background:var(--surface)}
+.section-head{text-align:center;max-width:660px;margin:0 auto 46px}
+.section-head h2{margin-bottom:.4em}
+.section-head p{color:var(--muted);margin:0}
+.eyebrow-c{display:block;color:var(--amber-dark);font-weight:800;font-size:.8rem;
+           text-transform:uppercase;letter-spacing:.13em;margin-bottom:10px}
+
+/* ── About (image collage + copy) ────────────────────────────────── */
+.about-grid{display:grid;gap:clamp(30px,5vw,64px);align-items:center;
+            grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
+.about-media{position:relative}
+.about-media img,.about-ph{width:100%;background:var(--surface);
+                           border:1px solid var(--line);object-fit:cover}
+.about-media .a1{aspect-ratio:5/4}
+.about-media picture:nth-of-type(2){display:block;width:66%;margin:-26% 0 0 auto;
+                                    position:relative;z-index:2}
+.about-media .a2{aspect-ratio:16/10;border:7px solid var(--bg);width:100%}
+.about-copy h2{margin-bottom:.5em}
+.about-copy p{color:var(--muted)}
+.dots{position:absolute;left:-18px;bottom:14%;width:96px;height:96px;z-index:0;
+      background-image:radial-gradient(var(--amber) 2px,transparent 2px);
+      background-size:13px 13px;opacity:.55}
+
+/* ── Cards / service grid ────────────────────────────────────────── */
+.grid{display:grid;gap:26px;grid-template-columns:repeat(auto-fit,minmax(285px,1fr))}
+.card{background:var(--card);padding:32px 28px;box-shadow:var(--shadow);
+      border-bottom:3px solid transparent;transition:transform .16s,box-shadow .16s,border-color .16s}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-bottom-color:var(--amber)}
+.card h3{margin:18px 0 8px;font-size:1.05rem}
+.card h3 a{text-decoration:none;color:inherit}
+.card h3 a:hover{color:var(--amber-dark)}
+.card p{color:var(--muted);font-size:.9rem;margin-bottom:.7em}
+.card .price{color:var(--fg);font-weight:800;font-size:.85rem;margin:0}
+/* One highlighted card per grid, as in the reference.
+   In dark mode --navy and --card collapse to nearly the same value, so the
+   navy fill alone stops reading as "featured". There we switch to an amber
+   edge + lifted surface, which survives both themes. */
+.card-feature{background:var(--navy);border-bottom-color:var(--amber)}
+.card-feature h3,.card-feature h3 a,.card-feature .price{color:#fff}
+.card-feature p{color:#b9c3db}
+.card-feature:hover h3 a{color:var(--amber)}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .card-feature{
+    background:var(--navy-soft);
+    box-shadow:inset 0 0 0 1px var(--amber), var(--shadow-lg);
+  }
+}
+:root[data-theme="dark"] .card-feature{
+  background:var(--navy-soft);
+  box-shadow:inset 0 0 0 1px var(--amber), var(--shadow-lg);
+}
+
+/* ── Content blocks ──────────────────────────────────────────────── */
+.answer-box{border-left:4px solid var(--amber);background:var(--surface);
+            padding:22px 26px;margin:26px 0}
+.answer-box p:last-child{margin-bottom:0}
+.checklist{list-style:none;padding:0;display:grid;gap:12px;
+           grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.checklist li{padding-left:30px;position:relative;color:var(--muted)}
+.checklist li::before{content:"";position:absolute;left:0;top:.55em;width:16px;height:9px;
+                      border-left:2.5px solid var(--amber);border-bottom:2.5px solid var(--amber);
+                      transform:rotate(-45deg)}
+.steps{list-style:none;counter-reset:s;padding:0}
+.steps li{counter-increment:s;padding:16px 0 16px 60px;position:relative;
+          border-bottom:1px solid var(--line)}
+.steps li::before{content:counter(s);position:absolute;left:0;top:16px;width:38px;height:38px;
+                  background:var(--amber);color:var(--navy);display:grid;place-items:center;
+                  font-weight:800;font-size:.92rem}
+.steps strong{display:block;margin-bottom:2px}
+.steps span{color:var(--muted);font-size:.93rem}
+
+/* ── FAQ ─────────────────────────────────────────────────────────── */
+.faq-list details{border:1px solid var(--line);margin-bottom:12px;background:var(--card)}
+.faq-list summary{cursor:pointer;list-style:none;padding:17px 22px;display:flex;
+                  align-items:center;justify-content:space-between;gap:16px}
+.faq-list summary::-webkit-details-marker{display:none}
+.faq-list summary::after{content:"+";font-size:1.35rem;color:var(--amber);font-weight:700;flex:none}
+.faq-list details[open] summary::after{content:"−"}
+.faq-list details[open] summary{background:var(--surface)}
+.faq-list summary h3{margin:0;font-size:1rem}
+.faq-answer{padding:16px 22px 20px;color:var(--muted);max-width:78ch;
+            border-top:1px solid var(--line)}
+.faq-answer p{margin:0}
+
+/* ── CTA band ────────────────────────────────────────────────────── */
+.cta{background:var(--navy);color:#fff;padding:46px 34px;text-align:center}
+.cta h2{color:#fff}
+.cta p{color:#c3cce0}
+.cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:22px 0 14px}
+.cta-hours{color:#a8b3cc;font-size:.86rem;margin:0}
+.cta-compact{padding:32px 26px}
+
+/* ── Disclosure — never visually de-emphasised ───────────────────── */
+.disclosure{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-fg);
+            padding:20px 24px;margin:28px 0;font-size:.92rem;border-left:4px solid var(--warn-line)}
+.disclosure p{margin:0 0 .6em}
+.disclosure p:last-child{margin-bottom:0}
+.disclosure-title{font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.74rem}
+.disclosure a{color:inherit}
+
+/* ── Misc ────────────────────────────────────────────────────────── */
+.breadcrumbs ol{display:flex;flex-wrap:wrap;gap:9px;list-style:none;padding:0;
+                margin:22px 0;font-size:.84rem;color:var(--muted)}
+.breadcrumbs li+li::before{content:"›";margin-right:9px;color:var(--line)}
+.breadcrumbs a{color:var(--muted);text-decoration:none}
+.breadcrumbs a:hover{color:var(--amber-dark)}
+.linklist{columns:3 210px;column-gap:30px;list-style:none;padding:0;font-size:.9rem}
+.linklist li{break-inside:avoid;padding:4px 0}
+.linklist a{text-decoration:none;color:var(--fg)}
+.linklist a:hover{color:var(--amber-dark)}
+.hero-badges{display:flex;gap:11px;flex-wrap:wrap;margin:26px 0 0;padding:0;list-style:none}
+.hero-badges li{background:var(--surface);border:1px solid var(--line);padding:7px 15px;
+                font-size:.83rem;color:var(--muted)}
+.muted{color:var(--muted)}
+.lead{font-size:1.06rem}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+.table-scroll{overflow-x:auto}
+th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line)}
+thead th{background:var(--navy);color:#fff;font-weight:700;font-size:.8rem;
+         text-transform:uppercase;letter-spacing:.05em}
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+.site-footer{background:var(--navy);color:#b9c3db;margin-top:0;padding-top:56px}
+.footer-grid{display:grid;gap:36px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+             padding-bottom:38px}
+.site-footer h3{font-size:.88rem;color:#fff;text-transform:uppercase;letter-spacing:.09em;
+                margin-bottom:18px;position:relative;padding-bottom:12px}
+.site-footer h3::after{content:"";position:absolute;left:0;bottom:0;width:34px;height:2px;background:var(--amber)}
+.site-footer ul{list-style:none;padding:0;margin:0}
+.site-footer li{padding:4px 0;font-size:.9rem}
+.site-footer a{color:#b9c3db;text-decoration:none}
+.site-footer a:hover{color:var(--amber)}
+.site-footer p{font-size:.9rem;color:#b9c3db}
+.legal{border-top:1px solid rgba(255,255,255,.11);padding-block:20px;font-size:.83rem;color:#8e9ab6}
+.legal p{margin:0;color:#8e9ab6}
+
+/* Mid widths: a longer business name pushes the phone button onto a second row.
+   Tighten nav spacing and brand size here so the header stays one row down to
+   the point where the nav moves to its own line anyway. */
+@media (max-width:1080px) and (min-width:861px){
+  .header-inner{gap:18px}
+  .site-header nav{gap:17px}
+  .site-header nav a{font-size:.79rem;letter-spacing:.03em}
+  .brand{font-size:1.06rem}
+  .brand svg{width:26px;height:26px}
+  .header-tools{padding-left:14px;gap:10px}
+  .header-phone{padding:10px 15px;font-size:.85rem}
+}
+@media (max-width:860px){
+  .header-inner{min-height:64px;gap:14px}
+  .site-header nav{order:3;width:100%;gap:16px;margin-left:0;padding-bottom:10px}
+  .header-tools{padding-left:0;border-left:0;margin-left:auto}
+  .header-phone{display:none}
+  .topbar-inner{gap:16px;font-size:.75rem}
+  .about-media picture:nth-of-type(2){width:82%;margin-top:-12%}
+}
+@media (max-width:640px){
+  .topbar .hide-sm{display:none}
+  .featstrip{margin-top:-30px}
+  .linklist{columns:2 150px}
+  .hero-inner{padding-bottom:36px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+  .card:hover{transform:none}
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Scroll reveal animations
+
+   Three constraints shaped this, all of them SEO-relevant:
+
+   1. NO-JS SAFETY. The hidden state lives behind `.js-reveal`, a class an
+      inline head script adds. If JS fails, never loads, or a crawler does not
+      execute it, nothing is ever hidden — content renders normally. Starting
+      from opacity:0 in the base CSS would risk an invisible page.
+
+   2. LCP PROTECTION. The hero <h1> is deliberately NOT animated. It is almost
+      certainly the Largest Contentful Paint element, and fading it in delays
+      LCP by exactly the animation duration. Supporting hero elements animate;
+      the headline paints immediately.
+
+   3. NO LAYOUT SHIFT. Only opacity and transform are animated — both are
+      compositor-only properties that never trigger layout, so Cumulative
+      Layout Shift stays at zero.
+   ═══════════════════════════════════════════════════════════════════ */
+.js-reveal .reveal{opacity:0;transform:translateY(22px);
+                   transition:opacity .6s cubic-bezier(.22,.61,.36,1),
+                              transform .6s cubic-bezier(.22,.61,.36,1)}
+.js-reveal .reveal.is-in{opacity:1;transform:none}
+
+/* Directional variants for the two-column About block */
+.js-reveal .reveal-left{opacity:0;transform:translateX(-30px);
+                        transition:opacity .7s cubic-bezier(.22,.61,.36,1),
+                                   transform .7s cubic-bezier(.22,.61,.36,1)}
+.js-reveal .reveal-right{opacity:0;transform:translateX(30px);
+                         transition:opacity .7s cubic-bezier(.22,.61,.36,1),
+                                    transform .7s cubic-bezier(.22,.61,.36,1)}
+.js-reveal .reveal-left.is-in,.js-reveal .reveal-right.is-in{opacity:1;transform:none}
+
+/* Stagger: children animate in sequence rather than as one block.
+   Capped at 8 so a 52-item city list never waits ~4s to finish. */
+.js-reveal .reveal-group > *{opacity:0;transform:translateY(24px);
+                             transition:opacity .55s cubic-bezier(.22,.61,.36,1),
+                                        transform .55s cubic-bezier(.22,.61,.36,1)}
+.js-reveal .reveal-group.is-in > *{opacity:1;transform:none}
+.js-reveal .reveal-group.is-in > *:nth-child(1){transition-delay:.05s}
+.js-reveal .reveal-group.is-in > *:nth-child(2){transition-delay:.13s}
+.js-reveal .reveal-group.is-in > *:nth-child(3){transition-delay:.21s}
+.js-reveal .reveal-group.is-in > *:nth-child(4){transition-delay:.29s}
+.js-reveal .reveal-group.is-in > *:nth-child(5){transition-delay:.37s}
+.js-reveal .reveal-group.is-in > *:nth-child(6){transition-delay:.45s}
+.js-reveal .reveal-group.is-in > *:nth-child(7){transition-delay:.53s}
+.js-reveal .reveal-group.is-in > *:nth-child(n+8){transition-delay:.6s}
+
+/* Hero: plays on load, not on scroll — it is already in view.
+   The <h1> is intentionally absent from this list. */
+.js-reveal .hero-anim{opacity:0;transform:translateY(18px);
+                      animation:heroIn .65s cubic-bezier(.22,.61,.36,1) forwards}
+.js-reveal .hero-anim-1{animation-delay:.05s}
+.js-reveal .hero-anim-2{animation-delay:.18s}
+.js-reveal .hero-anim-3{animation-delay:.30s}
+@keyframes heroIn{to{opacity:1;transform:none}}
+
+/* Accessibility: motion-sensitive users get the content with no movement at
+   all. This is not optional — vestibular disorders make scroll animation
+   genuinely unpleasant, and it is a WCAG 2.3.3 consideration. */
+@media (prefers-reduced-motion:reduce){
+  .js-reveal .reveal,.js-reveal .reveal-left,.js-reveal .reveal-right,
+  .js-reveal .reveal-group > *,.js-reveal .hero-anim{
+    opacity:1!important;transform:none!important;
+    transition:none!important;animation:none!important}
+}
+
+/* ── Service-area map ────────────────────────────────────────────── */
+.mapwrap{margin:0 0 10px;padding:0}
+.usmap{width:100%;height:auto;display:block;overflow:visible}
+/* Dedicated map tokens. Reusing --surface made the landmass nearly invisible in
+   dark mode, where --surface sits only a few percent off the page background.
+   The map needs its own contrast step in both themes. */
+:root{--map-land:#e4e9f2; --map-border:#ffffff; --map-edge:#c3ccdc}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--map-land:#2c3548; --map-border:#3d4860; --map-edge:#48546e}
+}
+:root[data-theme="dark"]{--map-land:#2c3548; --map-border:#3d4860; --map-edge:#48546e}
+:root[data-theme="light"]{--map-land:#e4e9f2; --map-border:#ffffff; --map-edge:#c3ccdc}
+.map-land{fill:var(--map-land);stroke:var(--map-edge);stroke-width:1.2;
+          stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.map-borders{fill:none;stroke:var(--map-border);stroke-width:1;
+             vector-effect:non-scaling-stroke;opacity:.9}
+.map-pin{cursor:pointer}
+.map-pin use{transition:transform .16s ease,opacity .16s ease;transform-origin:center;
+             transform-box:fill-box}
+.map-pin:hover use,.map-pin:focus-visible use{transform:scale(1.45) translateY(-2px)}
+.map-pin:focus-visible circle{fill:var(--amber);fill-opacity:.22}
+.mapwrap figcaption{text-align:center;font-size:.88rem;margin-top:6px}
+@media (prefers-reduced-motion:reduce){ .map-pin use{transition:none} }
+@media (max-width:640px){
+  /* Below this width the markers are too dense to tap accurately — the text
+     link list underneath is the usable path, so the map becomes decorative. */
+  .usmap{opacity:.9}
+}

@@ -1,0 +1,30 @@
+---
+import { SERVICES } from '../data/services.js';
+import Icon from './Icon.astro';
+
+/** `feature` = index of the card rendered in navy, as in the reference design. */
+const { city = null, limit = 0, heading = 'How we can help you',
+        sub = '', feature = 1, eyebrow = 'Our Services' } = Astro.props;
+const items = limit ? SERVICES.slice(0, limit) : SERVICES;
+const ICONS = {
+  'virus-malware-removal':'shield','windows-support':'wrench','microsoft-365-email-support':'mail',
+  'printer-setup-repair':'tag','pc-tune-up':'clock','remote-support':'chat',
+  'antivirus-setup-support':'shield','network-wifi-setup':'share',
+  'data-recovery':'tag','business-it-support':'wrench',
+};
+---
+<div class="section-head reveal">
+  <span class="eyebrow-c">{eyebrow}</span>
+  <h2>{heading}{city ? ` in ${city.name}` : ''}</h2>
+  {sub && <p>{sub}</p>}
+</div>
+<div class="grid reveal-group">
+  {items.map((s, i) => (
+    <article class:list={['card', i === feature && 'card-feature']}>
+      <span class="ico"><Icon name={ICONS[s.slug] || 'wrench'} /></span>
+      <h3><a href={`/services/${s.slug}`}>{s.name}</a></h3>
+      <p>{s.blurb}</p>
+      <p class="price">From ${s.priceFrom}</p>
+    </article>
+  ))}
+</div>

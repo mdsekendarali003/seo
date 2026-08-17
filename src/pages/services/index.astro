@@ -1,0 +1,50 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ServiceGrid from '../../components/ServiceGrid.astro';
+import CallCta from '../../components/CallCta.astro';
+import { SERVICES } from '../../data/services.js';
+import * as S from '../../lib/schema.js';
+
+const path = '/services';
+const trail = [{ name: 'Home', path: '/' }, { name: 'Services', path }];
+const schema = S.graph(
+  S.organization(), S.website(),
+  S.webPage({ path, title: 'Computer Repair Services', description: 'All computer and PC repair services.' }),
+  S.breadcrumbs(trail, path),
+  SERVICES.map((s) => S.service(s)),
+);
+---
+<Base
+  title="Computer Repair Services & Pricing"
+  description="Virus removal, Windows support, printer setup, email configuration, data recovery, networking and business IT. Transparent starting prices and free diagnosis."
+  path={path} schema={schema}
+>
+  <div class="wrap">
+    <Breadcrumbs trail={trail} />
+    <h1>Computer repair services</h1>
+    <p class="lead muted" data-speakable>
+      Everything we fix, with honest starting prices. Diagnosis is always free and
+      you approve a fixed price before any billable work begins.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <caption class="muted" style="text-align:left;padding:8px 0">Starting prices — final price confirmed after free diagnosis</caption>
+        <thead><tr><th>Service</th><th>What it covers</th><th>From</th></tr></thead>
+        <tbody>
+          {SERVICES.map((s) => (
+            <tr>
+              <td><a href={`/services/${s.slug}`}>{s.name}</a></td>
+              <td class="muted">{s.short}</td>
+              <td><strong>${s.priceFrom}</strong></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <ServiceGrid heading="Browse services" />
+    <CallCta heading="Not sure which one you need?" sub="Describe the problem and we will tell you — diagnosis is free." />
+  </div>
+</Base>

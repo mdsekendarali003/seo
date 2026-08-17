@@ -1,0 +1,58 @@
+---
+/**
+ * Service-area map. Inline SVG, generated at build time by scripts/gen-map.mjs.
+ *
+ * Every marker is a real <a> to its city page, so this is not decoration —
+ * it carries the same crawl value as the text link list, and screen readers
+ * get a proper list of links rather than an opaque canvas.
+ */
+import { MAP } from '../data/map.js';
+import { MARK_FRONT, MARK_SHADE, BRAND_COLOR, BRAND_SHADE } from '../lib/brand.js';
+import { BUSINESS } from '../data/business.js';
+
+const { heading = 'Where we work' } = Astro.props;
+---
+<figure class="mapwrap reveal">
+  <svg
+    class="usmap"
+    viewBox={`0 0 ${MAP.width} ${MAP.height}`}
+    role="img"
+    aria-labelledby="map-title map-desc"
+    preserveAspectRatio="xMidYMid meet"
+  >
+    <title id="map-title">{heading}</title>
+    <desc id="map-desc">
+      Map of the United States showing the {MAP.points.length} metro areas where
+      {BUSINESS.name} provides on-site computer repair. Each marker links to that
+      city's page. The same locations are listed as text links below the map.
+    </desc>
+
+    <defs>
+      {/* The logo mark, defined once and instanced at every location */}
+      <g id="pin">
+        <path d={MARK_FRONT} fill={BRAND_COLOR} />
+        <path d={MARK_SHADE} fill={BRAND_SHADE} />
+      </g>
+      <filter id="pinshadow" x="-50%" y="-50%" width="200%" height="200%">
+        <feDropShadow dx="0" dy="1" stdDeviation="1.2" flood-opacity=".35" />
+      </filter>
+    </defs>
+
+    <path class="map-land"    d={MAP.nation} />
+    <path class="map-borders" d={MAP.borders} />
+
+    <g class="map-pins" filter="url(#pinshadow)">
+      {MAP.points.map((p) => (
+        <a href={`/computer-repair/${p.slug}`} class="map-pin">
+          <title>Computer repair {p.name}, {p.state}</title>
+          {/* Transparent hit area — the mark itself is too small to tap reliably */}
+          <circle cx={p.x} cy={p.y} r="11" fill="transparent" />
+          <use href="#pin" x={p.x - 7} y={p.y - 8.5} width="14" height="14" />
+        </a>
+      ))}
+    </g>
+  </svg>
+  <figcaption class="muted">
+    On-site service in {MAP.points.length} metro areas · Remote support nationwide
+  </figcaption>
+</figure>

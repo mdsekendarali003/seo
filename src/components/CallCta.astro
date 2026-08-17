@@ -1,0 +1,14 @@
+---
+import { BUSINESS } from '../data/business.js';
+import Icon from './Icon.astro';
+const { heading = 'Talk to a technician today', sub = '', compact = false } = Astro.props;
+---
+<section class:list={['cta', compact && 'cta-compact']}>
+  <h2>{heading}</h2>
+  {sub && <p>{sub}</p>}
+  <div class="cta-actions">
+    <a class="btn btn-primary" href={`tel:${BUSINESS.phone}`}>Call {BUSINESS.phoneDisplay}</a>
+    <a class="btn btn-outline" href={`mailto:${BUSINESS.email}`}>Email us</a>
+  </div>
+  <p class="cta-hours">{BUSINESS.hoursDisplay} · Free diagnosis · No fix, no fee</p>
+</section>

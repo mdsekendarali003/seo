@@ -1,0 +1,271 @@
+---
+import { SITE, BUSINESS } from '../data/business.js';
+import { buildTitle, clampDescription, canonical } from '../lib/seo.js';
+import Icon from '../components/Icon.astro';
+import Logo from '../components/Logo.astro';
+import '../styles/global.css';
+
+const {
+  title,
+  description,
+  path,
+  schema,               // the @graph object from lib/schema.js
+  noindex = false,
+  ogType = 'website',
+  datePublished,
+  dateModified,
+} = Astro.props;
+
+const pageTitle = buildTitle(title);
+const desc = clampDescription(description);
+const url = canonical(path);
+const ogImage = `${SITE.url}/og-default.png`;
+---
+<!doctype html>
+<html lang={SITE.lang}>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>{pageTitle}</title>
+  <meta name="description" content={desc} />
+  <link rel="canonical" href={url} />
+
+  {/* Robots: max-snippet:-1 lets Google use unlimited snippet length, which
+      materially increases the chance of being quoted in an AI Overview.
+      Default settings cap the snippet and cost you the citation. */}
+  {noindex
+    ? <meta name="robots" content="noindex, nofollow" />
+    : <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />}
+
+  {/* Open Graph */}
+  <meta property="og:type" content={ogType} />
+  <meta property="og:site_name" content={BUSINESS.name} />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={desc} />
+  <meta property="og:url" content={url} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:locale" content={SITE.locale} />
+  {datePublished && <meta property="article:published_time" content={datePublished} />}
+  {dateModified && <meta property="article:modified_time" content={dateModified} />}
+
+  {/* Twitter / X */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={desc} />
+  <meta name="twitter:image" content={ogImage} />
+
+  {/* Local + contact signals read by some parsers and by humans viewing source */}
+  <meta name="geo.region" content={`US-${BUSINESS.address.region}`} />
+  <meta name="geo.placename" content={BUSINESS.address.city} />
+  <meta name="theme-color" content={SITE.themeColor} />
+
+  {BUSINESS.verification.google && <meta name="google-site-verification" content={BUSINESS.verification.google} />}
+  {BUSINESS.verification.bing && <meta name="msvalidate.01" content={BUSINESS.verification.bing} />}
+  {BUSINESS.verification.yandex && <meta name="yandex-verification" content={BUSINESS.verification.yandex} />}
+
+  <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable site summary" />
+  {/* Icons, all generated from the same mark as the header logo (src/lib/brand.js).
+      SVG first for modern browsers; .ico is the legacy fallback; apple-touch-icon
+      must be a PNG with an opaque background, because iOS renders transparency
+      as solid black on the home screen. */}
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  {/* Applies the saved theme before first paint. This MUST be inline and in
+      <head> — an external or deferred script runs after the browser has already
+      painted, which produces a visible white flash for dark-mode users. It is
+      also wrapped in try/catch because localStorage throws in some privacy modes,
+      and an uncaught error here would block the rest of the page. */}
+  <script is:inline>
+    (function () {
+      // Opt in to reveal animations only when JS is available. Without this
+      // class nothing is ever hidden, so a JS failure cannot blank the page.
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('js-reveal');
+      }
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || t === 'light') {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+</head>
+<body>
+  <a href="#main" class="skip">Skip to content</a>
+
+  {/* Utility bar — phone and hours above the fold on every page. For a service
+      business the phone number is the conversion, so it never scrolls away. */}
+  <div class="topbar">
+    <div class="wrap topbar-inner">
+      <a href={`tel:${BUSINESS.phone}`}><Icon name="phone" /> {BUSINESS.phoneDisplay}</a>
+      <a href={`mailto:${BUSINESS.email}`} class="hide-sm"><Icon name="mail" /> {BUSINESS.email}</a>
+      <span class="hide-sm" style="display:inline-flex;align-items:center;gap:7px">
+        <Icon name="clock" /> {BUSINESS.hoursDisplay}
+      </span>
+      {BUSINESS.sameAs.length > 0 && (
+        <div class="topbar-social">
+          {BUSINESS.sameAs.map((href) => {
+            const n = /facebook/.test(href) ? 'facebook'
+                    : /linkedin/.test(href) ? 'linkedin'
+                    : /twitter|x\.com/.test(href) ? 'twitter' : null;
+            return n && (
+              <a href={href} rel="noopener me" target="_blank" aria-label={n}>
+                <Icon name={n} />
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a href="/" class="brand"><Logo /> {BUSINESS.name}</a>
+      <nav aria-label="Primary">
+        <a href="/" aria-current={path === '/' ? 'page' : undefined}>Home</a>
+        <a href="/services" aria-current={path?.startsWith('/services') ? 'page' : undefined}>Services</a>
+        <a href="/locations" aria-current={path?.startsWith('/locations') ? 'page' : undefined}>Locations</a>
+        <a href="/guides" aria-current={path?.startsWith('/guides') ? 'page' : undefined}>Guides</a>
+        <a href="/about" aria-current={path === '/about' ? 'page' : undefined}>About</a>
+      </nav>
+      <div class="header-tools">
+        <button
+          type="button"
+          class="theme-toggle"
+          id="theme-toggle"
+          aria-label="Switch between dark and light theme"
+          title="Switch theme"
+        >
+          <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36A5.39 5.39 0 0 1 16.5 13 5.5 5.5 0 0 1 11 7.5c0-1.61.7-3.06 1.8-4.06A9.4 9.4 0 0 0 12 3z"/></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0-5 2.4 3.2h-4.8L12 2zm0 20-2.4-3.2h4.8L12 22zM2 12l3.2-2.4v4.8L2 12zm20 0-3.2 2.4V9.6L22 12zM4.9 4.9l3.9.6-2.7 2.7-1.2-3.3zm14.2 14.2-3.9-.6 2.7-2.7 1.2 3.3zM4.9 19.1l1.2-3.3 2.7 2.7-3.9.6zM19.1 4.9l-1.2 3.3-2.7-2.7 3.9-.6z"/></svg>
+        </button>
+        <a class="header-phone" href={`tel:${BUSINESS.phone}`}>
+          <Icon name="phone" /> {BUSINESS.phoneDisplay}
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main"><slot /></main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <h3>{BUSINESS.name}</h3>
+        <p>{BUSINESS.tagline}</p>
+        <p>
+          <a href={`tel:${BUSINESS.phone}`}>{BUSINESS.phoneDisplay}</a><br />
+          <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a>
+        </p>
+        <p>{BUSINESS.hoursDisplay}</p>
+      </div>
+      <div>
+        <h3>Services</h3>
+        <ul>
+          <li><a href="/services/virus-malware-removal">Virus &amp; Malware Removal</a></li>
+          <li><a href="/services/windows-support">Windows Support</a></li>
+          <li><a href="/services/printer-setup-repair">Printer Setup</a></li>
+          <li><a href="/services/remote-support">Remote Support</a></li>
+          <li><a href="/services/data-recovery">Data Recovery</a></li>
+          <li><a href="/services">All services →</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Help Guides</h3>
+        <ul>
+          <li><a href="/guides/computer-running-slow">Slow computer</a></li>
+          <li><a href="/guides/printer-keeps-going-offline">Printer offline</a></li>
+          <li><a href="/guides/outlook-keeps-asking-for-password">Outlook password loop</a></li>
+          <li><a href="/guides/how-to-spot-a-tech-support-scam">Spotting a scam</a></li>
+          <li><a href="/guides">All guides →</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Company</h3>
+        <ul>
+          <li><a href="/about">About us</a></li>
+          <li><a href="/locations">Service areas</a></li>
+          <li><a href="/trademarks">Trademark notice</a></li>
+          <li><a href="/privacy">Privacy policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap legal">
+      <p>&copy; {new Date().getFullYear()} {BUSINESS.legalName}. All rights reserved.
+         Independent repair provider — not affiliated with any software or hardware manufacturer.</p>
+    </div>
+  </footer>
+
+  <script is:inline>
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      var root = document.documentElement;
+      btn.addEventListener('click', function () {
+        // No stored preference yet means we are following the OS, so the first
+        // click should flip away from whatever the OS is currently showing.
+        var current = root.getAttribute('data-theme');
+        if (!current) {
+          current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        var next = current === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      });
+    })();
+  </script>
+
+  <script is:inline>
+    (function () {
+      var root = document.documentElement;
+      if (!root.classList.contains('js-reveal')) return;
+
+      var targets = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-group');
+      if (!targets.length) return;
+
+      // No IntersectionObserver (very old browsers): reveal everything at once
+      // rather than leaving it invisible forever.
+      if (!('IntersectionObserver' in window)) {
+        targets.forEach(function (el) { el.classList.add('is-in'); });
+        return;
+      }
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-in');
+          io.unobserve(entry.target);   // one-shot: never re-hide on scroll up
+        });
+      }, {
+        // Fire slightly before the element reaches the viewport so it has
+        // finished animating by the time the user is actually looking at it.
+        rootMargin: '0px 0px -12% 0px',
+        threshold: 0.08,
+      });
+
+      targets.forEach(function (el) { io.observe(el); });
+
+      // Anything already in view on load (above the fold) should not wait for
+      // a scroll event that may never come.
+      requestAnimationFrame(function () {
+        targets.forEach(function (el) {
+          var r = el.getBoundingClientRect();
+          if (r.top < window.innerHeight && r.bottom > 0) {
+            el.classList.add('is-in');
+            io.unobserve(el);
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

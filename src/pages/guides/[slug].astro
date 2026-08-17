@@ -1,0 +1,99 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import CallCta from '../../components/CallCta.astro';
+import VendorDisclosure from '../../components/VendorDisclosure.astro';
+import { GUIDES } from '../../data/guides.js';
+import { VENDORS } from '../../data/business.js';
+import * as S from '../../lib/schema.js';
+
+export function getStaticPaths() {
+  return GUIDES.map((g) => ({ params: { slug: g.slug }, props: { guide: g } }));
+}
+const { guide } = Astro.props;
+const path = `/guides/${guide.slug}`;
+const trail = [{ name: 'Home', path: '/' }, { name: 'Help Guides', path: '/guides' }, { name: guide.title, path }];
+const related = GUIDES.filter((g) => g.slug !== guide.slug).slice(0, 4);
+
+const schema = S.graph(
+  S.organization(), S.website(),
+  S.webPage({
+    path, title: guide.title, description: guide.description,
+    datePublished: guide.published, dateModified: guide.updated,
+  }),
+  S.article({
+    path, headline: guide.title, description: guide.description,
+    datePublished: guide.published, dateModified: guide.updated,
+  }),
+  S.breadcrumbs(trail, path),
+  S.howTo({
+    name: guide.title, description: guide.description,
+    steps: guide.steps, pagePath: path,
+  }),
+  S.faqPage(guide.faqs, path),
+  (guide.vendors || []).map((v) => S.vendorMention(v)),
+);
+---
+<Base
+  title={guide.title} description={guide.description} path={path}
+  schema={schema} ogType="article"
+  datePublished={guide.published} dateModified={guide.updated}
+>
+  <div class="wrap">
+    <Breadcrumbs trail={trail} />
+    <h1>{guide.title}</h1>
+    <p class="muted" style="font-size:.9rem">
+      Published {guide.published} · Updated {guide.updated}
+    </p>
+
+    {/* The answer box is the extraction target. It is a complete, standalone
+        answer placed before any other content, so a retriever that reads only
+        the first passage still gets a correct and useful response. */}
+    <div class="answer-box" data-speakable>
+      <p><strong>Short answer:</strong> {guide.answer}</p>
+    </div>
+
+    {guide.vendors?.length > 0 && <VendorDisclosure vendors={guide.vendors} />}
+
+    <section>
+      <h2>Step by step</h2>
+      <ol class="steps">
+        {guide.steps.map((s) => (
+          <li><strong>{s.name}</strong><span>{s.text}</span></li>
+        ))}
+      </ol>
+    </section>
+
+    {guide.vendorRouting && (
+      <section>
+        <h2>What only the vendor can help with</h2>
+        <p>{guide.vendorRouting}</p>
+        <ul>
+          {guide.vendors.map((k) => VENDORS[k] && (
+            <li>
+              <a href={VENDORS[k].officialSupport} rel="nofollow noopener external" target="_blank">
+                {VENDORS[k].name} official support ({VENDORS[k].officialSupport.replace('https://', '')})
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <Faq faqs={guide.faqs} heading="Related questions" />
+
+    <CallCta
+      compact
+      heading="Stuck on one of these steps?"
+      sub="We can walk through it with you remotely. Free diagnosis, and no charge if we cannot fix it."
+    />
+
+    <section>
+      <h2>More help guides</h2>
+      <ul class="linklist">
+        {related.map((g) => <li><a href={`/guides/${g.slug}`}>{g.title}</a></li>)}
+      </ul>
+    </section>
+  </div>
+</Base>

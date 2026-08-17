@@ -1,0 +1,43 @@
+---
+/**
+ * REQUIRED on every page that names a third-party product.
+ *
+ * This is the component that separates lawful nominative trademark use from
+ * the tech-support-scam pattern the FTC prosecutes. Three things must be true
+ * and all three are encoded here:
+ *   1. Explicit statement of non-affiliation, visible without scrolling.
+ *   2. A working link to the vendor's OWN official support channel.
+ *   3. No vendor logos, no vendor colours, no "official" or "authorized" language.
+ *
+ * Do not remove it from a page, and do not move it below the fold.
+ */
+import { VENDORS, BUSINESS } from '../data/business.js';
+const { vendors = [] } = Astro.props;
+const list = vendors.map((k) => VENDORS[k]).filter(Boolean);
+const names = list.map((v) => v.name);
+const nameStr = names.length > 1
+  ? names.slice(0, -1).join(', ') + ' or ' + names.at(-1)
+  : names[0] || 'any software vendor';
+---
+<aside class="disclosure" role="note" aria-label="Independent service notice">
+  <p class="disclosure-title">Independent service notice</p>
+  <p>
+    <strong>{BUSINESS.name} is an independent repair provider.</strong> We are not
+    {nameStr}, and we are not affiliated with, endorsed by, authorized by, or an
+    agent of {nameStr}. All product names, logos and brands are the property of
+    their respective owners and are used on this page for identification only.
+  </p>
+  {list.length > 0 && (
+    <p>
+      For billing, licence, refund or account issues you must contact the vendor
+      directly — those require vendor account access, which no third party has:
+      {list.map((v, i) => (
+        <>
+          {i > 0 && ' · '}
+          <a href={v.officialSupport} rel="nofollow noopener external" target="_blank">
+            Official {v.name} support</a>
+        </>
+      ))}
+    </p>
+  )}
+</aside>

@@ -1,0 +1,8 @@
+---
+import { MARK_VIEWBOX, MARK_FRONT, MARK_SHADE, BRAND_COLOR, BRAND_SHADE } from '../lib/brand.js';
+const { cls = '' } = Astro.props;
+---
+<svg class={cls} viewBox={MARK_VIEWBOX} aria-hidden="true" focusable="false">
+  <path d={MARK_FRONT} fill={BRAND_COLOR} />
+  <path d={MARK_SHADE} fill={BRAND_SHADE} />
+</svg>

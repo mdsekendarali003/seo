@@ -1,0 +1,25 @@
+{
+  "name": "techfix-seo",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "audit": "node scripts/seo-audit.mjs",
+    "indexnow": "node scripts/indexnow.mjs",
+    "postbuild": "npm run audit",
+    "icons": "node scripts/gen-icons.mjs",
+    "map": "node scripts/gen-map.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.2.5"
+  },
+  "devDependencies": {
+    "d3-geo": "^3.1.1",
+    "topojson-client": "^3.1.0",
+    "topojson-simplify": "^3.0.3"
+  }
+}

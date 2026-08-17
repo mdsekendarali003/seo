@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { BUSINESS, VENDORS, DISCLOSURE } from '../data/business.js';
+import * as S from '../lib/schema.js';
+const path = '/trademarks';
+const trail = [{ name: 'Home', path: '/' }, { name: 'Trademark Notice', path }];
+const schema = S.graph(
+  S.organization(), S.website(),
+  S.webPage({ path, title: 'Trademark & Affiliation Notice', description: 'Trademark and non-affiliation notice.' }),
+  S.breadcrumbs(trail, path),
+);
+---
+<Base
+  title="Trademark &amp; Affiliation Notice"
+  description={`${BUSINESS.name} is an independent repair provider and is not affiliated with any software or hardware manufacturer. Full trademark notice.`}
+  path={path} schema={schema}
+>
+  <div class="wrap">
+    <Breadcrumbs trail={trail} />
+    <h1>Trademark and affiliation notice</h1>
+    <div class="answer-box" data-speakable><p>{DISCLOSURE}</p></div>
+
+    <section>
+      <h2>Why product names appear on this site</h2>
+      <p>
+        We publish troubleshooting guides that necessarily name the products they
+        are about — you cannot write a useful guide about a Windows update error
+        without saying "Windows". Naming a product to accurately describe what a
+        guide covers is nominative fair use. It does not imply any relationship
+        with the trademark owner, and we claim none.
+      </p>
+      <p>We do not use vendor logos, vendor branding or vendor design elements anywhere on this site.</p>
+    </section>
+
+    <section>
+      <h2>Vendors referenced, and their official support</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Product</th><th>Trademark owner</th><th>Official support</th></tr></thead>
+          <tbody>
+            {Object.values(VENDORS).map((v) => (
+              <tr>
+                <td>{v.name}</td>
+                <td>{v.owner}</td>
+                <td><a href={v.officialSupport} rel="nofollow noopener external" target="_blank">{v.officialSupport.replace('https://', '')}</a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>What we cannot do</h2>
+      <p>
+        We have no access to any vendor's customer accounts and cannot process
+        subscriptions, renewals, refunds, licence transfers or account recovery for
+        any vendor. Anyone claiming otherwise is not being straight with you.
+        Those matters must go through the vendor using the official links above.
+      </p>
+    </section>
+
+    <section>
+      <h2>Reporting a concern</h2>
+      <p>
+        If you are a trademark owner and believe something on this site is
+        misleading, contact <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a>
+        {' '}and we will review it promptly.
+      </p>
+    </section>
+  </div>
+</Base>

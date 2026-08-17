@@ -1,0 +1,17 @@
+# Netlify / Cloudflare Pages redirect rules.
+#
+# "PC repair {city}" and "computer repair {city}" are the same search intent.
+# Two separate pages would compete with each other for the same queries and split
+# the link equity — classic keyword cannibalization. One strong page wins both,
+# so every /pc-repair/* URL 301s into its /computer-repair/* equivalent.
+# 301 (not 302) because it permanently passes ranking signals to the target.
+/pc-repair/*        /computer-repair/:splat        301
+/laptop-repair/*    /computer-repair/:splat        301
+/computer-repair    /locations                     301
+/services/index     /services                      301
+
+# Canonical host. Serving both www and non-www as 200 is duplicate content and
+# splits your ranking signal across two hostnames. Pick one and 301 the other.
+# Uncomment the line matching your choice — non-www is the default below.
+https://www.cleanfeatures.com/*   https://cleanfeatures.com/:splat   301!
+# https://cleanfeatures.com/*     https://www.cleanfeatures.com/:splat  301!

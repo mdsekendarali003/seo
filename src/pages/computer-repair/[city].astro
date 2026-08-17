@@ -1,0 +1,128 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ServiceGrid from '../../components/ServiceGrid.astro';
+import Faq from '../../components/Faq.astro';
+import CallCta from '../../components/CallCta.astro';
+import { CITIES } from '../../data/cities.js';
+import { SERVICES } from '../../data/services.js';
+import { BUSINESS } from '../../data/business.js';
+import * as S from '../../lib/schema.js';
+
+export function getStaticPaths() {
+  return CITIES.map((city, i) => ({
+    params: { city: city.slug },
+    // Deterministic neighbour set gives every page a genuinely different
+    // internal-link neighbourhood instead of an identical footer block.
+    props: { city, nearby: [...CITIES.slice(i + 1), ...CITIES.slice(0, i)].slice(0, 8) },
+  }));
+}
+const { city, nearby } = Astro.props;
+const path = `/computer-repair/${city.slug}`;
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Locations', path: '/locations' },
+  { name: `${city.name}, ${city.state}`, path },
+];
+
+/* This page intentionally targets "computer repair {city}" AND "PC repair {city}"
+   together. They are the same search intent, so splitting them across two URLs
+   would make the pages compete with each other and halve the authority of both.
+   /pc-repair/{city} 301-redirects here (see public/_redirects). */
+
+const faqs = [
+  { q: `How much does computer repair cost in ${city.name}?`,
+    a: `Computer repair in ${city.name} typically costs $79 to $149 depending on the problem. Virus and malware removal runs $89-$149, Windows troubleshooting $79-$129, and printer or email setup $69-$99. Diagnosis is free and you receive a fixed price before any billable work starts.` },
+  { q: `How do I book a computer repair in ${city.name}?`,
+    a: `Call ${BUSINESS.phoneDisplay} to book a repair in ${city.name}. Tell us what the machine is doing and what changed recently, and we will diagnose it free of charge and give you a fixed price before any work starts. Remote sessions can usually begin within a couple of hours; on-site visits across ${city.name} are typically next business day.` },
+  { q: `Do you offer same-day PC repair in ${city.name}?`,
+    a: `Yes. Software problems for ${city.name} customers are usually resolved the same day over a secure remote session, often within two hours of your call to ${BUSINESS.phoneDisplay}. On-site visits across ${city.name} are typically scheduled for the next business day.` },
+  { q: `Which areas of ${city.name} do you cover?`,
+    a: `We cover ${city.name} and the surrounding metro, including ${city.neighborhoods.slice(0, 4).join(', ')} and ${city.neighborhoods.at(-1)}. Remote support is available anywhere with an internet connection, so coverage is not a limitation for software problems.` },
+  { q: `Can you fix my computer without me leaving home in ${city.name}?`,
+    a: `Yes. Most issues — viruses, Windows errors, slow performance, email and printer setup — are fixed remotely while you watch your screen, with no visit and no need to unplug anything. Only hardware faults such as a failed drive or power supply need physical access.` },
+  { q: `Do you repair both PCs and Macs in ${city.name}?`,
+    a: `Yes, we service Windows PCs, laptops and Macs in ${city.name}. Windows work makes up most of what we do, but Mac software issues, migrations and hardware diagnostics are all covered.` },
+  { q: `Are you affiliated with any software manufacturer?`,
+    a: `No. We are an independent repair provider serving ${city.name} with no affiliation to, endorsement by, or authorization from any software or hardware manufacturer. We take no vendor commissions, so what we recommend is what we think you actually need.` },
+];
+
+const schema = S.graph(
+  S.organization(), S.website(),
+  S.localBusiness(city),
+  S.webPage({
+    path,
+    title: `Computer Repair ${city.name}, ${city.state}`,
+    description: `Computer and PC repair in ${city.name}.`,
+    primaryEntityId: S.ID.city(city.slug),
+  }),
+  S.breadcrumbs(trail, path),
+  S.faqPage(faqs, path),
+  SERVICES.map((s) => S.service(s, city)),
+);
+---
+<Base
+  title={`Computer Repair ${city.name}, ${city.state}`}
+  description={`Computer and PC repair in ${city.name}, ${city.stateName}. Virus removal, Windows fixes, printer and email setup. Same-day remote support, free diagnosis. Call ${BUSINESS.phoneDisplay}.`}
+  path={path} schema={schema}
+>
+  <div class="wrap">
+    <Breadcrumbs trail={trail} />
+    <h1>Computer &amp; PC repair in {city.name}, {city.state}</h1>
+
+    <div class="answer-box" data-speakable>
+      <p><strong>{BUSINESS.name} provides computer and PC repair in {city.name},
+      {' '}{city.stateName}.</strong> We remove viruses and malware, fix Windows
+      startup and update errors, set up printers and email, recover lost files and
+      speed up slow machines. Most repairs cost $79-$149 with free diagnosis.
+      Remote support is same-day; on-site service covers {city.neighborhoods.slice(0, 3).join(', ')}
+      {' '}and the wider {city.name} metro. Call
+      {' '}<a href={`tel:${BUSINESS.phone}`}>{BUSINESS.phoneDisplay}</a>.</p>
+    </div>
+
+    <ul class="hero-badges">
+      <li>Free diagnosis</li><li>No fix, no fee</li>
+      <li>Same-day remote support</li><li>{BUSINESS.hoursDisplay}</li>
+    </ul>
+
+    <ServiceGrid city={city} heading="Computer repair services" />
+
+    <section>
+      <h2>Areas we cover around {city.name}</h2>
+      <p class="muted">
+        On-site service across the {city.name} metro area, including
+        {' '}{city.neighborhoods.join(', ')}. Remote support is available anywhere
+        in {city.stateName} and nationwide.
+      </p>
+    </section>
+
+    <section>
+      <h2>Common {city.name} computer problems we fix</h2>
+      <ul class="checklist">
+        <li>Pop-up ads and browser hijackers after a bad download</li>
+        <li>Windows update failing repeatedly with an error code</li>
+        <li>Laptop slow to start and hot to the touch</li>
+        <li>Printer showing offline after a router change</li>
+        <li>Outlook stuck asking for a password</li>
+        <li>Files deleted or a drive that stopped being detected</li>
+      </ul>
+    </section>
+
+    <Faq faqs={faqs} heading={`Computer repair in ${city.name} — FAQs`} />
+
+    <CallCta
+      heading={`Need a computer fixed in ${city.name}?`}
+      sub="Free diagnosis and a fixed price before we start. Most problems solved remotely today."
+    />
+
+    <section>
+      <h2>Nearby service areas</h2>
+      <ul class="linklist">
+        {nearby.map((c) => (
+          <li><a href={`/computer-repair/${c.slug}`}>Computer repair {c.name}, {c.state}</a></li>
+        ))}
+        <li><a href="/locations"><strong>All locations →</strong></a></li>
+      </ul>
+    </section>
+  </div>
+</Base>
