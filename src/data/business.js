@@ -47,6 +47,9 @@ export const SITE = {
   lang: 'en',
   themeColor: config.navyColor || '#1b2a54',
   brandColor: config.brandColor || '#f0a028',
+  // Empty string when not configured — Base.astro checks this and renders
+  // nothing at all, so a site with no ad campaign ships zero extra bytes.
+  googleAdsId: String(config.googleAdsId || '').trim(),
   images: {
     hero:   config.images?.hero   || '/images/hero',
     about1: config.images?.about1 || '/images/about-1',

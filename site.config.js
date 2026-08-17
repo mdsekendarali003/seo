@@ -109,6 +109,11 @@ export default {
   // IndexNow key — instant indexing for Bing and Microsoft Copilot.
   indexNowKey: '3b68f8f05d6d4db88bbfc66ba8de7e82',
 
+  // Google Ads conversion ID (the "AW-XXXXXXXXX" from your gtag snippet).
+  // Leave empty and NOTHING is added to the site — no script, no external
+  // request. Only fill this in once you actually have an active campaign.
+  googleAdsId: '',
+
 
   /* ─── 6. Images ────────────────────────────────────────────────── */
   // Photos live in public/images/. Give the path WITHOUT the extension —
